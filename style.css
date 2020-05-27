@@ -1,0 +1,17 @@
+body {
+    background-color: black;
+    text-color: white;
+    text-align: center;
+}
+
+button {
+    align: center;
+    font-size: 28px;
+}
+
+#settings {
+    color: white;
+    font-size: 28px;
+}
+
+
