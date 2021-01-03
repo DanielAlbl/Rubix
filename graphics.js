@@ -9,22 +9,14 @@ $(document).ready(function() {
     var div = document.getElementById('cube');
     div.appendChild(renderer.domElement);
 	document.body.addEventListener("keydown",keyDown);
-	document.body.addEventListener("keyup",keyUp);
 
     // Classes
     class Queue {
-        constructor() {
-            this.data = [];
-        }
-        enqueue(item) {
-            this.data.push(item);
-        }
-        dequeue() {
-            return this.data.shift();
-        }
-        empty() {
-            return this.data.length == 0;
-        }
+        constructor() { this.data = [];               }
+        enqueue(item) { this.data.push(item);         }
+        dequeue()     { return this.data.shift();     }
+		size()        { return this.data.length;      }
+        empty()       { return this.data.length == 0; }
     }
 
 	// Constants
@@ -49,18 +41,18 @@ $(document).ready(function() {
 	];
 
 	// globals
-	var rotation = 0;
-	var direction = 0;
+	var rotation    = 0;
+	var direction   = 0;
 	var orientation = new THREE.Quaternion(0,0,0,1);
-	var prime = false;
-	var middle = false;
-	var spaceBar = false;
-	var cubeRot = false;
-	var solved = true;
-	var solving = false;
-	var move = 0;
-	var MOVE_TIME = 17;
-    var Q = new Queue; 
+	var prime       = false;
+	var middle      = false;
+	var spaceBar    = false;
+	var cubeRot     = false;
+	var solved      = true;
+	var solving     = false;
+	var move        = 0;
+	var MOVE_TIME   = 17;
+    var Q           = new Queue; 
 
 	// Make Cube
 	var cube = new THREE.Group();
@@ -87,8 +79,7 @@ $(document).ready(function() {
     $('#turnSpeed').click(changeSpeed);
 
 	// Functions
-	function makeCubie(x,y,z) 
-	{
+	function makeCubie(x,y,z) {
 	    var geometry = new THREE.BoxGeometry(WIDTH, WIDTH, WIDTH);
 	    var material = new THREE.MeshBasicMaterial( {side: THREE.DoubleSide, vertexColors: THREE.FaceColors} );
 	    var sides = new THREE.Mesh(geometry,material);
@@ -103,32 +94,27 @@ $(document).ready(function() {
 	    cubies.push(cubie);
 	}
 
-	function makeRow(y,z)
-	{
+	function makeRow(y,z) {
 	    makeCubie(-WIDTH,y,z);
 	    makeCubie(0,y,z);
 	    makeCubie(WIDTH,y,z);
 	}
 
-	function makeFace(z)
-	{
+	function makeFace(z) {
 	    makeRow(-WIDTH,z);
 	    makeRow(0,z);
 	    makeRow(WIDTH,z);
 	}
 
-	function makeCube()
-	{
+	function makeCube() {
 	    makeFace(WIDTH);
 	    makeFace(0);
 	    makeFace(-WIDTH);
 	}
 
 	function setCube() {
-		for(let i = 0; i < cubies.length; i++)
-		{
-			for(let j = 0; j < cubies[i].children[0].geometry.faces.length; j++)
-			{
+		for(let i = 0; i < cubies.length; i++) {
+			for(let j = 0; j < cubies[i].children[0].geometry.faces.length; j++) {
 				 if(cubies[i].position.x ===  WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 1, 0, 0)))
 				cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[0]);
 			else if(cubies[i].position.x === -WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3(-1, 0, 0)))
@@ -148,15 +134,13 @@ $(document).ready(function() {
 		}
 	}
 
-	function keyDown(e)
-	{
+	function keyDown(e) {
 	    if(direction !== 0) {
-            Q.enqueue(e);  
+			Q.enqueue(e);  
 		    return;
         }
 
-	    switch(e.key)
-	    {
+	    switch(e.key) {
 		case 'o':
 		    prime = true;
 		    solver.move(3); 
@@ -223,8 +207,7 @@ $(document).ready(function() {
 		    direction = new THREE.Vector3(-1, 0, 0);
 		    return;
 	    }
-	    switch(e.keyCode)
-	    {
+	    switch(e.keyCode) {
 		case 33:
             solver.rotateCube(5);
 		    direction = new THREE.Vector3( 0, 0, 1);
@@ -258,20 +241,15 @@ $(document).ready(function() {
 	    }
 	}
 
-	function keyUp(e) {}
-
-	function moveSide()
-	{
-	    if(rotation === 0)
-	    {
-		    var audio = new Audio("static/rubix.wav");
-		        audio.play();
+	function moveSide() {
+	    if(rotation === 0) {
+		    var audio = new Audio("rubix.wav");
+		    audio.play();
 	    }
 	    var side = new THREE.Group();
 	    direction.applyQuaternion(orientation);
 	    for(let i = 0; i < cube.children.length; i++)
-		    if((!middle && Math.abs(cube.children[i].position.dot(direction) - WIDTH) < MARGIN) || (middle && Math.abs(cube.children[i].position.dot(direction) + WIDTH) >= MARGIN && Math.abs(cube.children[i].position.dot(direction) - WIDTH) >= MARGIN))
-		    {   
+		    if((!middle && Math.abs(cube.children[i].position.dot(direction) - WIDTH) < MARGIN) || (middle && Math.abs(cube.children[i].position.dot(direction) + WIDTH) >= MARGIN && Math.abs(cube.children[i].position.dot(direction) - WIDTH) >= MARGIN)) {   
 		        side.attach(cube.children[i]);
 		        i--;
 		    }
@@ -280,26 +258,20 @@ $(document).ready(function() {
 	    direction.applyQuaternion(orientation);
 	    orientation.inverse();
 
-	    if(prime)
-		    side.rotateOnAxis(direction, Math.PI/MOVE_TIME/2);
-	    else
-		    side.rotateOnAxis(direction,-Math.PI/MOVE_TIME/2);
+		side.rotateOnAxis(direction, (prime ? 1:-1)*Math.PI/MOVE_TIME/2);
 
 	    while(side.children.length !== 0)
 		    cube.attach(side.children[0]);
 
 	    rotation++;
-	    if(rotation === MOVE_TIME)
-	    { 
+	    if(rotation === MOVE_TIME) { 
             rotation = 0;
             direction = 0;
             prime = false;
             middle = false;
-            if(solving)
-            {
+            if(solving) {
                 move++;
-                if(move === solver.max)
-                {
+                if(move === solver.max) {
                     solving = false;
                     direction = 0;
                     move = 0;
@@ -312,15 +284,13 @@ $(document).ready(function() {
 	    }
 	}
 
-	function cubeRotation()
-	{
+	function cubeRotation() {
 	    if(rotation === 0)
 		    direction.applyQuaternion(orientation);
 	    cube.rotateOnAxis(direction, Math.PI/MOVE_TIME/2);
 	    
 	    rotation++;
-	    if(rotation === MOVE_TIME)
-	    {
+	    if(rotation === MOVE_TIME) {
             var q = new THREE.Quaternion();
             q.setFromAxisAngle(direction, -Math.PI/2);
             orientation.multiplyQuaternions(q,orientation);
@@ -332,12 +302,9 @@ $(document).ready(function() {
 	    }
 	}
 
-	function scramble()
-	{
-	    if(direction != 0)
-		    return;
-	    for(let i = 0; i < 20; i++)
-	    {
+	function scramble() {
+	    if(direction != 0) return;
+	    for(let i = 0; i < 20; i++) {
             var index = Math.floor(6*Math.random());
             var neg   = Math.floor(2*Math.random());
             moveSideInstant(AXES[index],neg);
@@ -350,13 +317,11 @@ $(document).ready(function() {
 	    button.blur();
 	}
 
-	function moveSideInstant(axis,neg)
-	{
+	function moveSideInstant(axis,neg) {
 	    var side = new THREE.Group();
 	    axis.applyQuaternion(orientation);
 	    for(let i = 0; i < cube.children.length; i++)
-            if(Math.abs(cube.children[i].position.dot(axis) - WIDTH) < MARGIN)
-            {
+            if(Math.abs(cube.children[i].position.dot(axis) - WIDTH) < MARGIN) {
                 side.attach(cube.children[i]);
                 i--;
             }
@@ -365,26 +330,20 @@ $(document).ready(function() {
 	    axis.applyQuaternion(orientation);
 	    orientation.inverse();
 
-	    if(neg)
-		    side.rotateOnAxis(axis, Math.PI/2);
-	    else
-		    side.rotateOnAxis(axis,-Math.PI/2);
+		side.rotateOnAxis(axis, (neg ? 1:-1)*Math.PI/2);
 
 	    while(side.children.length !== 0)
 		    cube.attach(side.children[0]);
 	}
 
-	function isSolved()
-	{
+	function isSolved() {
 	    var normalMatrix = new THREE.Matrix3();
-	    var worldNormal = new THREE.Vector3();
+	    var worldNormal  = new THREE.Vector3();
 
-	    for(let i = 0; i < cubies.length; i++)
-	    {
+	    for(let i = 0; i < cubies.length; i++) {
             normalMatrix.getNormalMatrix(cubies[i].matrixWorld);
                
-            for(let j = 0; j < cubies[i].children[0].geometry.faces.length; j++)
-            {
+            for(let j = 0; j < cubies[i].children[0].geometry.faces.length; j++) {
                 worldNormal.copy(cubies[i].children[0].geometry.faces[j].normal).applyMatrix3(normalMatrix).normalize().applyQuaternion(orientation);
                 if(cubies[i].children[0].geometry.faces[j].color.getHex() !== INNER_COLOR)
                     if(!checkColor(cubies[i].children[0].geometry.faces[j],worldNormal))
@@ -394,8 +353,7 @@ $(document).ready(function() {
 	    return true;
 	}
 
-	function checkColor(face,normal)
-	{
+	function checkColor(face,normal) {
 	    if(Math.abs(normal.x - WIDTH) < MARGIN && face.color.getHex() !== COLORS[0])
 		    return false;
 	    if(Math.abs(normal.x + WIDTH) < MARGIN && face.color.getHex() !== COLORS[1])
@@ -411,21 +369,7 @@ $(document).ready(function() {
 	    return true;
 	}
 
-	function playVideo()
-	{
-	    var div = document.getElementById('video');
-	    div.style.display = 'block';
-	    var video = document.getElementById('clapping');
-	    video.play();
-	}
-
-	function hideVideo()
-	{
-	    document.getElementById('clapping').style.display = 'none';
-	}
-
-	function solveCross()
-	{
+	function solveCross() {
 	    if(solver.edges.whiteCross())
 		    return;
 	    solving = true;
@@ -433,11 +377,9 @@ $(document).ready(function() {
 	    setDirection();
 	}
 
-	function setDirection() 
-	{
+	function setDirection() {
 	    solver.move(solver.sol[move]);
-	    switch(solver.sol[move])
-	    {
+	    switch(solver.sol[move]) {
 		case 0:
 		    direction = new THREE.Vector3( 1, 0, 0);
 		    return;
@@ -452,7 +394,7 @@ $(document).ready(function() {
 		    prime = true;
 		    direction = new THREE.Vector3( 0, 1, 0);
 		    return;
-		 case 4:
+		case 4:
 		    direction = new THREE.Vector3( 0, 0, 1);
 		    return;
 		case 5:
@@ -482,24 +424,18 @@ $(document).ready(function() {
 	    }
 	}
 
-	function showOptions()
-	{
+	function showOptions() {
 	    var op = document.getElementById('settings');
-	    if(op.style.display === 'none')
-		op.style.display = 'block';
-	    else
-		op.style.display = 'none';
+		op.style.display = op.style.display === 'none' ? 'block':'none';
 	}
 
-	function changeSpeed()
-	{
+	function changeSpeed() {
 	    if(rotation !== 0) return;
 	    var s = document.getElementById('turnSpeed').value;
 	    MOVE_TIME = Number(32-s);
 	}
 
-	function setMetric()
-	{
+	function setMetric() {
 	    var edges = solver.edges;
 	    if(document.getElementById('htm').checked === 'checked')
 			solver = new HTM_Solver();
@@ -508,8 +444,7 @@ $(document).ready(function() {
 	    solver.edges = edges;
 	}
 
-	function update()
-	{
+	function update() {
 	    if(direction !== 0) {
 		    if(cubeRot)
 		        cubeRotation();
@@ -528,13 +463,11 @@ $(document).ready(function() {
 	    }
 	}
 
-	function render()
-	{
+	function render() {
 	    renderer.render(scene,camera);    
 	}
 
-	function gameLoop()
-	{
+	function gameLoop() {
 	    update();
 	    render();
 
