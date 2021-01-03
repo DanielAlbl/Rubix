@@ -31,24 +31,22 @@ $(document).ready(function() {
 	const WIDTH = 1;
 	const MARGIN = 0.001
 	const INNER_COLOR = 0x000000;
-	const COLORS = 
-	    [
+	const COLORS = [
 		0xCC0000, //right
 		0xE57019, //left
 		0xFFFFFF, //top
 		0xFFE500, //bottom
 		0x009A00, //front
 		0x0000B2, //back
-	    ];
-	const AXES =
-	    [
+	];
+	const AXES = [
 		new THREE.Vector3( 1, 0, 0),
 		new THREE.Vector3( 0, 1, 0),
 		new THREE.Vector3( 0, 0, 1),
 		new THREE.Vector3(-1, 0, 0),
 		new THREE.Vector3( 0,-1, 0),
 		new THREE.Vector3( 0, 0,-1)
-	    ];
+	];
 
 	// globals
 	var rotation = 0;
@@ -73,27 +71,7 @@ $(document).ready(function() {
 	// init solver
 	var solver = new HTM_Solver();
 
-	for(let i = 0; i < cubies.length; i++)
-	{
-	    for(let j = 0; j < cubies[i].children[0].geometry.faces.length; j++)
-	    {
-		     if(cubies[i].position.x ===  WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 1, 0, 0)))
-		    cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[0]);
-		else if(cubies[i].position.x === -WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3(-1, 0, 0)))
-		    cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[1]);
-		else if(cubies[i].position.y ===  WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 0, 1, 0)))
-		    cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[2]);
-		else if(cubies[i].position.y === -WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 0,-1, 0)))
-		    cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[3]);
-		else if(cubies[i].position.z ===  WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 0, 0, 1)))
-		    cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[4]);
-		else if(cubies[i].position.z === -WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 0, 0,-1)))
-		    cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[5]);
-		else
-		    cubies[i].children[0].geometry.faces[j].color.setHex(INNER_COLOR);
-	    }
-	    cube.add(cubies[i]);
-	}
+	setCube();	
 
 	scene.add(cube);
 
@@ -144,6 +122,30 @@ $(document).ready(function() {
 	    makeFace(WIDTH);
 	    makeFace(0);
 	    makeFace(-WIDTH);
+	}
+
+	function setCube() {
+		for(let i = 0; i < cubies.length; i++)
+		{
+			for(let j = 0; j < cubies[i].children[0].geometry.faces.length; j++)
+			{
+				 if(cubies[i].position.x ===  WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 1, 0, 0)))
+				cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[0]);
+			else if(cubies[i].position.x === -WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3(-1, 0, 0)))
+				cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[1]);
+			else if(cubies[i].position.y ===  WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 0, 1, 0)))
+				cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[2]);
+			else if(cubies[i].position.y === -WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 0,-1, 0)))
+				cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[3]);
+			else if(cubies[i].position.z ===  WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 0, 0, 1)))
+				cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[4]);
+			else if(cubies[i].position.z === -WIDTH && cubies[i].children[0].geometry.faces[j].normal.equals(new THREE.Vector3( 0, 0,-1)))
+				cubies[i].children[0].geometry.faces[j].color.setHex(COLORS[5]);
+			else
+				cubies[i].children[0].geometry.faces[j].color.setHex(INNER_COLOR);
+			}
+			cube.add(cubies[i]);
+		}
 	}
 
 	function keyDown(e)
@@ -256,9 +258,7 @@ $(document).ready(function() {
 	    }
 	}
 
-	function keyUp(e)
-	{
-	}
+	function keyUp(e) {}
 
 	function moveSide()
 	{
@@ -493,8 +493,7 @@ $(document).ready(function() {
 
 	function changeSpeed()
 	{
-	    if(rotation !== 0)
-		return;
+	    if(rotation !== 0) return;
 	    var s = document.getElementById('turnSpeed').value;
 	    MOVE_TIME = Number(32-s);
 	}
@@ -503,9 +502,9 @@ $(document).ready(function() {
 	{
 	    var edges = solver.edges;
 	    if(document.getElementById('htm').checked === 'checked')
-		solver = new HTM_Solver();
+			solver = new HTM_Solver();
 	    else
-		solver = new QTM_Solver();
+			solver = new QTM_Solver();
 	    solver.edges = edges;
 	}
 

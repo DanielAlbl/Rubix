@@ -3,10 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Rubik's Cube</title>
-    <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
-    <script src="https://threejs.org/build/three.js"></script>
-    <script src="{{ url_for('static',filename='edges.js') }}"></script>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='rubix.css') }}">
+    <link rel="stylesheet" type="text/css" href="rubix.css">
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">    
   </head>
   <body>
@@ -23,9 +20,26 @@
             <span style='font-size: 20px;'>2 Moves</span> 
         <br>Turn speed:<br>
         <input type="range" min="0" max="31" value="16" class="slider" id="turnSpeed">
-        <script src="{{ url_for('static',filename='graphics.js') }}"></script>
     </div>
     <div id='cube'></div>
+	<div>
+		<table>
+			<tr>
+				<th>Move</th><td>U</td><td>R</td><td>F</td><td>D</td><td>L</td><td>B</td><td>M</td>
+				<td>U'</td><td>R'</td><td>F'</td><td>D'</td><td>L'</td><td>B'</td><td>M'</td>
+			</tr>
+			<tr>
+				<th>Key</th><td>W</td><td>D</td><td>S</td><td>Z</td><td>A</td><td>E</td><td>C</td>
+				<td>O</td><td>;</td><td>L</td><td>,</td><td>K</td><td>P</td><td>M</td>
+			</tr>
+		</table>
+	</div>
+	<p>(Cube rotations are done with the arrow keys)</p>
+	<br>
     <button id='home' onclick="location.href='{{ url_for("home") }}'" type='button'>Home Page</button>
+    <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="edges.js"></script>
+    <script src="graphics.js"></script>
     </body>
 </html>
