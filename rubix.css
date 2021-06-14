@@ -32,6 +32,7 @@ th, td {
 p {
 	font-size: 25px;
 	color: white;
+	margin: 0;
 }
 
 #settings {
