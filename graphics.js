@@ -51,7 +51,7 @@ $(document).ready(function() {
 	var solved      = true;
 	var solving     = false;
 	var move        = 0;
-	var MOVE_TIME   = 17;
+	var MOVE_TIME   = 9;
     var Q           = new Queue; 
 
 	// Make Cube

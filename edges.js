@@ -153,7 +153,7 @@ function QTM_Solver() {
 
     this.mvs  = [];
     this.sol  = [];
-    this.max  = 9;
+    this.max  = 10;
     for(var i = 0; i < 20; i++) {
         this.mvs.push(0);
         this.sol.push(0);
