@@ -433,7 +433,7 @@ $(document).ready(function() {
 
 	function setMetric() {
 	    var edges = solver.edges;
-	    if(document.getElementById('htm').checked === 'checked')
+	    if($('input[name="metric"]:checked').val() === 'htm') 
 			solver = new HTM_Solver();
 	    else
 			solver = new QTM_Solver();
