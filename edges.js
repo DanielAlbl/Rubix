@@ -245,7 +245,7 @@ function QTM_Solver() {
     };
 
     this.reset = function() {
-        this.max = 9;
+        this.max = 10;
     };
 }
 
