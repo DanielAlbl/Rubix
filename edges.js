@@ -285,8 +285,8 @@ function HTM_Solver() {
         this.centers.move(m);
     };
     this.rotateCube = function(m) {
-        this.edges.rotateCube(m);
-        this.centers.move(m);
+       this.edges.rotateCube(m);
+       this.centers.move(m);
     };
     this.kosher = function(ran,i) {
         if(i === 0)

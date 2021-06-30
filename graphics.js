@@ -290,12 +290,33 @@ $(document).ready(function() {
             var q = new THREE.Quaternion();
             q.setFromAxisAngle(direction, -Math.PI/2);
             orientation.multiplyQuaternions(q,orientation);
+
+			roundOrientation();
              
             rotation = 0;
             direction = 0;
             cubeRot = false;
             changeSpeed();
 	    }
+	}
+
+	function roundOrientation() {
+		orientation._x = round90(orientation._x);
+		orientation._y = round90(orientation._y);
+		orientation._z = round90(orientation._z);
+		orientation._w = round90(orientation._w);
+	}
+
+	function round90(x) {
+		let r = Math.sqrt(2) / 2;
+
+		if(Math.abs(x - 0) < 0.1) return    0;
+		if(Math.abs(x - r) < 0.1) return    r;
+		if(Math.abs(x + r) < 0.1) return   -r;
+		if(Math.abs(x - 1) < 0.1) return    1;
+		if(Math.abs(x + 1) < 0.1) return   -1;
+		if(Math.abs(x-0.5) < 0.1) return  0.5;
+		if(Math.abs(x+0.5) < 0.1) return -0.5;
 	}
 
 	function scramble() {
@@ -309,8 +330,7 @@ $(document).ready(function() {
                 index++;
             solver.move(index);
         }
-	    var button = document.getElementById('scramble');
-	    button.blur();
+		$('#scramble').blur();
 	}
 
 	function moveSideInstant(axis,neg) {
@@ -421,21 +441,19 @@ $(document).ready(function() {
 	}
 
 	function showOptions() {
-	    var op = document.getElementById('settings');
-		op.style.display = op.style.display === 'none' ? 'block':'none';
+		$('#settings').toggle();
 	}
 
 	function changeSpeed() {
-	    if(rotation !== 0) return;
-	    var s = document.getElementById('turnSpeed').value;
-	    MOVE_TIME = Number(32-s);
+	    if(rotation === 0)
+	    	MOVE_TIME = Number(32-$('#turnSpeed').val());
 	}
 
 	function setMetric() {
 	    var edges = solver.edges;
 	    if($('input[name="metric"]:checked').val() === 'htm') 
 			solver = new HTM_Solver();
-	    else
+	    else 
 			solver = new QTM_Solver();
 	    solver.edges = edges;
 	}
