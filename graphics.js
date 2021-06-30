@@ -320,15 +320,14 @@ $(document).ready(function() {
 	}
 
 	function scramble() {
-	    if(direction != 0) return;
+	    if(!Q.empty() || direction != 0) return;
+
 	    for(let i = 0; i < 20; i++) {
             var index = Math.floor(6*Math.random());
             var neg   = Math.floor(2*Math.random());
             moveSideInstant(AXES[index],neg);
             index *= 2;
-            if(neg)
-                index++;
-            solver.move(index);
+            solver.move(neg ? index+1: index);
         }
 		$('#scramble').blur();
 	}
@@ -386,7 +385,7 @@ $(document).ready(function() {
 	}
 
 	function solveCross() {
-	    if(solver.edges.whiteCross())
+	    if(solver.edges.whiteCross() || !Q.empty() || direction !== 0)
 		    return;
 	    solving = true;
 	    solver.solveCross();
