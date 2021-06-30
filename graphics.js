@@ -140,6 +140,8 @@ $(document).ready(function() {
 		    return;
         }
 
+		changeButtonClickability(false);
+
 	    switch(e.key) {
 		case 'o':
 		    prime = true;
@@ -242,7 +244,7 @@ $(document).ready(function() {
 	}
 
 	function moveSide() {
-	    var side = new THREE.Group();
+	    let side = new THREE.Group();
 	    direction.applyQuaternion(orientation);
 	    for(let i = 0; i < cube.children.length; i++)
 		    if((!middle && Math.abs(cube.children[i].position.dot(direction) - WIDTH) < MARGIN) || (middle && Math.abs(cube.children[i].position.dot(direction) + WIDTH) >= MARGIN && Math.abs(cube.children[i].position.dot(direction) - WIDTH) >= MARGIN)) {   
@@ -269,6 +271,7 @@ $(document).ready(function() {
                 move++;
                 if(move === solver.max) {
                     solving = false;
+					changeMetricClickability(true);
                     direction = 0;
                     move = 0;
                     solver.reset();
@@ -287,7 +290,7 @@ $(document).ready(function() {
 	    
 	    rotation++;
 	    if(rotation === MOVE_TIME) {
-            var q = new THREE.Quaternion();
+            let q = new THREE.Quaternion();
             q.setFromAxisAngle(direction, -Math.PI/2);
             orientation.multiplyQuaternions(q,orientation);
 
@@ -320,11 +323,9 @@ $(document).ready(function() {
 	}
 
 	function scramble() {
-	    if(!Q.empty() || direction != 0) return;
-
 	    for(let i = 0; i < 20; i++) {
-            var index = Math.floor(6*Math.random());
-            var neg   = Math.floor(2*Math.random());
+            let index = Math.floor(6*Math.random());
+            let neg   = Math.floor(2*Math.random());
             moveSideInstant(AXES[index],neg);
             index *= 2;
             solver.move(neg ? index+1: index);
@@ -333,7 +334,7 @@ $(document).ready(function() {
 	}
 
 	function moveSideInstant(axis,neg) {
-	    var side = new THREE.Group();
+	    let side = new THREE.Group();
 	    axis.applyQuaternion(orientation);
 	    for(let i = 0; i < cube.children.length; i++)
             if(Math.abs(cube.children[i].position.dot(axis) - WIDTH) < MARGIN) {
@@ -352,8 +353,8 @@ $(document).ready(function() {
 	}
 
 	function isSolved() {
-	    var normalMatrix = new THREE.Matrix3();
-	    var worldNormal  = new THREE.Vector3();
+	    let normalMatrix = new THREE.Matrix3();
+	    let worldNormal  = new THREE.Vector3();
 
 	    for(let i = 0; i < cubies.length; i++) {
             normalMatrix.getNormalMatrix(cubies[i].matrixWorld);
@@ -385,11 +386,24 @@ $(document).ready(function() {
 	}
 
 	function solveCross() {
-	    if(solver.edges.whiteCross() || !Q.empty() || direction !== 0)
+	    if(solver.edges.whiteCross())
 		    return;
+
 	    solving = true;
+		changeMetricClickability(false);
+		changeButtonClickability(false);
 	    solver.solveCross();
 	    setDirection();
+	}
+
+	function changeMetricClickability(b) {
+		$('#htm').prop('disabled', !b);
+		$('#qtm').prop('disabled', !b);
+	}
+
+	function changeButtonClickability(b) {
+		$('#scramble').prop('disabled', !b);
+		$('#solve'   ).prop('disabled', !b);
 	}
 
 	function setDirection() {
@@ -449,12 +463,16 @@ $(document).ready(function() {
 	}
 
 	function setMetric() {
-	    var edges = solver.edges;
-	    if($('input[name="metric"]:checked').val() === 'htm') 
-			solver = new HTM_Solver();
-	    else 
-			solver = new QTM_Solver();
+		let htm = $('input[name="metric"]:checked').val() === 'htm'; 
+	    let edges = solver.edges;
+		let centers = solver.centers;
+		
+		solver = htm ? new HTM_Solver() : new QTM_Solver();
+
 	    solver.edges = edges;
+		solver.centers = centers;
+
+		$(htm ? '#htm' : '#qtm').blur();
 	}
 
 	function update() {
@@ -470,6 +488,7 @@ $(document).ready(function() {
                     solved = true;
                 if(solved && !isSolved())
                     solved = false;
+				changeButtonClickability(true);
             }
             else
                 keyDown(Q.dequeue());

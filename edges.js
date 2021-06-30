@@ -304,9 +304,9 @@ function HTM_Solver() {
         var m = 0, aligned = true;
         for(var i = 8; i < 12; i++) {
             if(this.edges.edges[i] < 16 && (Math.floor(this.edges.edges[i]/2)+i+this.edges.edges[i])%2 === 0)
-            m++;
+				m++;
             else if(this.edges.edges[i] !== 2*i)
-            aligned = false;
+				aligned = false;
         }
         if(!aligned)
             m++;
@@ -316,7 +316,7 @@ function HTM_Solver() {
         if(count < this.max && this.edges.whiteCross()) {
             this.max = count;
             for(var i = 0; i < this.max; i++)
-            this.solHTM[i] = this.mvs[i];
+				this.solHTM[i] = this.mvs[i];
             return true;
         }
         if(count+this.heuristic() >= this.max)
@@ -365,7 +365,7 @@ function HTM_Solver() {
             }
             else
                 this.sol[j] = side+1;
-                j++;
+			j++;
         }
         this.max = j;
     };
