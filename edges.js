@@ -14,7 +14,7 @@ const centers = [[ 1,  5,  4,  2],
                  [ 0,  4,  3,  1]];
 
 var cycle4 = function(d,c,b,a,arr) {
-    var temp = arr[a];
+    let temp = arr[a];
     arr[a] = arr[b];
     arr[b] = arr[c];
     arr[c] = arr[d];
@@ -22,16 +22,14 @@ var cycle4 = function(d,c,b,a,arr) {
 };
 
 var inverse = function(m) {
-    if(m % 2 === 0)
-        return m + 1;
-    else
-        return m - 1;
+	return m + (m % 2 ? -1 : 1);
 };
 
 function Edges() {
     this.edges = [];
-    for(var i = 0; i < 12; i++)
+    for(let i = 0; i < 12; i++)
         this.edges.push(2*i);
+
     this.cycle4 = function(d,c,b,a) {
         cycle4(d,c,b,a,this.edges);
     };
@@ -39,25 +37,13 @@ function Edges() {
         cycle4(d,c,b,a,this.edges);
     };
     this.orient = function(a,b,c,d) {
-        if (this.edges[a] % 2 == 0)
-            this.edges[a]++;
-        else
-            this.edges[a]--;
-        if (this.edges[b] % 2 == 0)
-            this.edges[b]++;
-        else
-            this.edges[b]--;
-        if (this.edges[c] % 2 == 0)
-            this.edges[c]++;
-        else
-            this.edges[c]--;
-        if (this.edges[d] % 2 == 0)
-            this.edges[d]++;
-        else
-            this.edges[d]--;
+		this.edges[a] = inverse(this.edges[a]);
+		this.edges[b] = inverse(this.edges[b]);
+		this.edges[c] = inverse(this.edges[c]);
+		this.edges[d] = inverse(this.edges[d]);
     };
     this.move = function(m) {
-        var i = Math.floor(m/2);
+        let i = Math.floor(m/2);
         this.orient(moves[i][0],moves[i][1],moves[i][2],moves[i][3]);
         if(m % 2 === 0) 
             this.cycle4 (moves[i][0],moves[i][1],moves[i][2],moves[i][3]);
@@ -65,7 +51,7 @@ function Edges() {
             this.cycle4p(moves[i][0],moves[i][1],moves[i][2],moves[i][3]);
     };
     this.moveMiddle = function(m) { 
-        var i = Math.floor(m/2);
+        let i = Math.floor(m/2);
         this.orient(middles[i][0],middles[i][1],middles[i][2],middles[i][3]);
         if(m % 2 === 0) 
             this.cycle4 (middles[i][0],middles[i][1],middles[i][2],middles[i][3]);
@@ -78,7 +64,7 @@ function Edges() {
         this.move(inverse(m+6));
     };
     this.whiteCross = function() {
-        for(var i = 8; i < 12; i++)
+        for(let i = 8; i < 12; i++)
             if(this.edges[i] !== 2*i)
             return false;
         return true;
@@ -87,7 +73,7 @@ function Edges() {
 
 function Centers() {
     this.centers = [];
-    for (var i = 0; i < 6; i++)
+    for (let i = 0; i < 6; i++)
         this.centers.push(i);
     
     this.cycle4 = function(d,c,b,a) {
@@ -97,15 +83,15 @@ function Centers() {
         cycle4(d,c,b,a,this.centers);
     };
     this.move = function(m) {
-        var i = Math.floor(m/2);
+        let i = Math.floor(m/2);
         if(m % 2 === 0)
             this.cycle4(centers[i][0],centers[i][1],centers[i][2],centers[i][3]);
         else
             this.cycle4p(centers[i][0],centers[i][1],centers[i][2],centers[i][3]);
     };
     this.getCrossFunction = function() {
-        var bottom, front, preMoves = [], moved = 0;
-        for(var i = 0; i < 6; i++)
+        let bottom, front, preMoves = [], moved = 0;
+        for(let i = 0; i < 6; i++)
             if(this.centers[i] === 4) {
                 bottom = i;
                 break;
@@ -118,11 +104,11 @@ function Centers() {
             case 3: preMoves.push(5); break;
             case 5: preMoves.push(0); break;
         }
-        for(var i = 0; i < preMoves.length; i++) {
+        for(let i = 0; i < preMoves.length; i++) {
             this.move(preMoves[i]);
             moved++;
         }
-        for(var i = 0; i < 6; i++)
+        for(let i = 0; i < 6; i++)
             if(this.centers[i] === 2) {
                 front = i;
                 break;
@@ -132,14 +118,14 @@ function Centers() {
             case 3: preMoves.push(3); break;
             case 5: preMoves.push(2); preMoves.push(2); break;
         }
-        for(var i = moved-1; i >= 0; i--)
+        for(let i = moved-1; i >= 0; i--)
             this.move(inverse(preMoves[i]));
 
-        var solved = new Edges();
-        for(var i = preMoves.length-1; i >= 0; i--) 
+        let solved = new Edges();
+        for(let i = preMoves.length-1; i >= 0; i--) 
             solved.rotateCube(inverse(preMoves[i]));
         return function() {
-            for(var i = 8; i < 12; i++)
+            for(let i = 8; i < 12; i++)
                 if(this.edges[i] !== solved.edges[i])
                     return false;
             return true;
@@ -151,10 +137,10 @@ function QTM_Solver() {
     this.edges = new Edges();
     this.centers = new Centers();
 
-    this.mvs  = [];
-    this.sol  = [];
-    this.max  = 10;
-    for(var i = 0; i < 20; i++) {
+    this.mvs = [];
+    this.sol = [];
+    this.max = 10;
+    for(let i = 0; i < 20; i++) {
         this.mvs.push(0);
         this.sol.push(0);
     }
@@ -172,12 +158,9 @@ function QTM_Solver() {
     this.kosher = function(ran,i) {
         if(i === 0)
             return true;
-        var odd, moveType, repeatCount = 0, j = i-1;
+        let odd, moveType, repeatCount = 0, j = i-1;
         
-        if(ran % 2 === 0)
-            odd = false;
-        else
-            odd = true;
+		odd = ran % 2 !== 0;
 
         moveType = Math.floor((ran % 6) / 2);
 
@@ -202,8 +185,8 @@ function QTM_Solver() {
     };
 
     this.heuristic = function() {
-        var m = 0, aligned = true;
-        for(var i = 8; i < 12; i++) {
+        let m = 0, aligned = true;
+        for(let i = 8; i < 12; i++) {
             if(this.edges.edges[i] < 16 && (Math.floor(this.edges.edges[i]/2)+i+this.edges.edges[i])%2 === 0)
                 m++;
             else if(this.edges.edges[i] !== 2*i)
@@ -217,14 +200,14 @@ function QTM_Solver() {
    this.solveCrossRecursive = function(count = 0) {
         if(count < this.max && this.edges.whiteCross()) {
             this.max = count;
-            for(var i = 0; i < this.max; i++)
+            for(let i = 0; i < this.max; i++)
                 this.sol[i] = this.mvs[i];
             return true;
         }
         if(count+this.heuristic() >= this.max)
             return false;
 
-        for(var i = 0; i < 12; i++) {
+        for(let i = 0; i < 12; i++) {
             if(this.kosher(i,count)) {
                 this.mvs[count] = i;
                 this.move(i);
@@ -258,7 +241,7 @@ function HTM_Solver() {
     this.solHTM = [];
     this.max    = 8;
     
-    for(var i = 0; i < 20; i++) {
+    for(let i = 0; i < 20; i++) {
         this.mvs.push(0);
         this.solHTM.push(0);
         this.sol.push(0);
@@ -269,8 +252,8 @@ function HTM_Solver() {
             this.edges.move(m);
             return;
         }
-        var side = 2*Math.floor(m/3);
-        var type = m % 3;
+        let side = 2*Math.floor(m/3);
+        let type = m % 3;
         if(type === 0)
             this.edges.move(side);
         else if(type === 1) {
@@ -301,8 +284,8 @@ function HTM_Solver() {
         return true;
     };
     this.heuristic = function() {
-        var m = 0, aligned = true;
-        for(var i = 8; i < 12; i++) {
+        let m = 0, aligned = true;
+        for(let i = 8; i < 12; i++) {
             if(this.edges.edges[i] < 16 && (Math.floor(this.edges.edges[i]/2)+i+this.edges.edges[i])%2 === 0)
 				m++;
             else if(this.edges.edges[i] !== 2*i)
@@ -322,12 +305,12 @@ function HTM_Solver() {
         if(count+this.heuristic() >= this.max)
             return false;
 
-        for(var i = 0; i < 18; i++) {
+        for(let i = 0; i < 18; i++) {
             if(this.kosher(i,count)) {
                 this.mvs[count] = i;
             this.move(i,false);
             if(this.solveCrossRecursive(count+1)) {
-                var mod = i % 3;
+                let mod = i % 3;
                 if(mod === 0)
                     this.move(i+2,false);
                 else if(mod === 1)
@@ -336,7 +319,7 @@ function HTM_Solver() {
                     this.move(i-2,false);
                 break;
             }
-            var mod = i % 3;
+            let mod = i % 3;
             if(mod === 0)
                 this.move(i+2,false);
             else if(mod === 1)
@@ -353,7 +336,7 @@ function HTM_Solver() {
         this.edges.whiteCross = this.centers.getCrossFunction();
         this.solveCrossRecursive();
         var side, type, j = 0;
-        for(var i = 0; i < this.max; i++) {
+        for(let i = 0; i < this.max; i++) {
             side = 2*Math.floor(this.solHTM[i]/3);
             type = this.solHTM[i] % 3;
             if(type === 0)
