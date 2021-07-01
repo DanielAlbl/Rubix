@@ -50,6 +50,8 @@ $(document).ready(function() {
 	var cubeRot     = false;
 	var solved      = true;
 	var solving     = false;
+	var disabled 	= false;
+	var speedChange = false;
 	var move        = 0;
 	var MOVE_TIME   = 9;
     var Q           = new Queue; 
@@ -139,105 +141,104 @@ $(document).ready(function() {
 			Q.enqueue(e);  
 		    return;
         }
-
-		changeButtonClickability(false);
+		
+		setButtonClickability(false);
 
 	    switch(e.key) {
 		case 'o':
+		    direction = new THREE.Vector3( 0, 1, 0);
 		    prime = true;
 		    solver.move(3); 
-		    direction = new THREE.Vector3( 0, 1, 0);
 		    return;
 		case 'w':
 		    direction = new THREE.Vector3( 0, 1, 0);
 		    solver.move(2);
 		    return;
 		case 'l':
+		    direction = new THREE.Vector3( 0, 0, 1);
 		    prime = true;
 		    solver.move(5); 
-		    direction = new THREE.Vector3( 0, 0, 1);
 		    return;
 		case 's':
 		    direction = new THREE.Vector3( 0, 0, 1);
 		    solver.move(4);
 		    return;
 		case ';':
+		    direction = new THREE.Vector3( 1, 0, 0);
 		    prime = true;
 		    solver.move(1);
-		    direction = new THREE.Vector3( 1, 0, 0);
 		    return;
 		case 'd':
 		    direction = new THREE.Vector3( 1, 0, 0);
 		    solver.move(0);
 		    return;
 		case 'k':
+		    direction = new THREE.Vector3(-1, 0, 0);
 		    prime = true;
 		    solver.move(7);
-		    direction = new THREE.Vector3(-1, 0, 0);
 		    return;
 		case 'a':
 		    direction = new THREE.Vector3(-1, 0, 0);
 		    solver.move(6);
 		    return;
 		case ',':
+		    direction = new THREE.Vector3( 0,-1, 0);
 		    prime = true;
 		    solver.move(9);
-		    direction = new THREE.Vector3( 0,-1, 0);
 		    return;
 		case 'z':
 		    direction = new THREE.Vector3( 0,-1, 0);
 		    solver.move(8);
 		    return;
 		case 'p':
+		    direction = new THREE.Vector3( 0, 0,-1);
 		    prime = true;
 		    solver.move(11);
-		    direction = new THREE.Vector3( 0, 0,-1);
 		    return;
 		case 'e':
 		    direction = new THREE.Vector3( 0, 0,-1);
 		    solver.move(10);
 		    return;
 		case 'm':
-		    prime = true;
-		    middle = true;
-            solver.moveMiddle(0);
 		    direction = new THREE.Vector3(-1, 0, 0);
+		    prime = middle = true;
+            solver.moveMiddle(0);
             return;
 		case 'c':
+		    direction = new THREE.Vector3(-1, 0, 0);
 		    middle = true;
             solver.moveMiddle(1);
-		    direction = new THREE.Vector3(-1, 0, 0);
 		    return;
 	    }
 	    switch(e.keyCode) {
 		case 33:
-            solver.rotateCube(5);
 		    direction = new THREE.Vector3( 0, 0, 1);
+            solver.rotateCube(5);
 		    cubeRot = true;
 		    return;
 		case 34:
-            solver.rotateCube(4);
 		    direction = new THREE.Vector3( 0, 0,-1);
+            solver.rotateCube(4);
 		    cubeRot = true;
 		    return;
 		case 37:
-            solver.rotateCube(2);
 		    direction = new THREE.Vector3( 0,-1, 0);
+            solver.rotateCube(2);
 		    cubeRot = true;
 		    return;
 		case 38:
-            solver.rotateCube(0);
 		    direction = new THREE.Vector3(-1, 0, 0);
+            solver.rotateCube(0);
 		    cubeRot = true;
 		    return;
 		case 39:
-            solver.rotateCube(3);
 		    direction = new THREE.Vector3( 0, 1, 0);
+            solver.rotateCube(3);
 		    cubeRot = true;
 		    return;
 		case 40:
-            solver.rotateCube(1);
 		    direction = new THREE.Vector3( 1, 0, 0);
+            solver.rotateCube(1);
 		    cubeRot = true;
 		    return;
 	    }
@@ -259,7 +260,7 @@ $(document).ready(function() {
 		side.rotateOnAxis(direction, (prime ? 1:-1)*Math.PI/MOVE_TIME/2);
 
 	    while(side.children.length !== 0)
-		    cube.attach(side.children[0]);
+		    cube.attach(side.children[side.children.length-1]);
 
 	    rotation++;
 	    if(rotation === MOVE_TIME) { 
@@ -271,7 +272,7 @@ $(document).ready(function() {
                 move++;
                 if(move === solver.max) {
                     solving = false;
-					changeMetricClickability(true);
+					setMetricClickability(true);
                     direction = 0;
                     move = 0;
                     solver.reset();
@@ -279,7 +280,10 @@ $(document).ready(function() {
                 else
                     setDirection();
             }
-            changeSpeed();
+			if(speedChange) {
+				changeSpeed();
+				speedChange = false;
+			}
 	    }
 	}
 
@@ -299,7 +303,10 @@ $(document).ready(function() {
             rotation = 0;
             direction = 0;
             cubeRot = false;
-            changeSpeed();
+			if(speedChange) {
+				changeSpeed();
+				speedChange = false;
+			}
 	    }
 	}
 
@@ -390,20 +397,23 @@ $(document).ready(function() {
 		    return;
 
 	    solving = true;
-		changeMetricClickability(false);
-		changeButtonClickability(false);
+		setMetricClickability(false);
+		setButtonClickability(false);
 	    solver.solveCross();
 	    setDirection();
 	}
 
-	function changeMetricClickability(b) {
+	function setMetricClickability(b) {
 		$('#htm').prop('disabled', !b);
 		$('#qtm').prop('disabled', !b);
 	}
 
-	function changeButtonClickability(b) {
-		$('#scramble').prop('disabled', !b);
-		$('#solve'   ).prop('disabled', !b);
+	function setButtonClickability(b) {
+		if(disabled === b) {
+			$('#scramble').prop('disabled', !b);
+			$('#solve'   ).prop('disabled', !b);
+			disabled = !b;
+		}
 	}
 
 	function setDirection() {
@@ -413,43 +423,43 @@ $(document).ready(function() {
 		    direction = new THREE.Vector3( 1, 0, 0);
 		    return;
 		case 1:
-		    prime = true;
 		    direction = new THREE.Vector3( 1, 0, 0);
+		    prime = true;
 		    return;
 		case 2:
 		    direction = new THREE.Vector3( 0, 1, 0);
 		    return;
 		case 3:
-		    prime = true;
 		    direction = new THREE.Vector3( 0, 1, 0);
+		    prime = true;
 		    return;
 		case 4:
 		    direction = new THREE.Vector3( 0, 0, 1);
 		    return;
 		case 5:
-		    prime = true;
 		    direction = new THREE.Vector3( 0, 0, 1);
+		    prime = true;
 		    return;
 		case 6:
 		    direction = new THREE.Vector3(-1, 0, 0);
 		    return;
 		case 7:
-		    prime = true;
 		    direction = new THREE.Vector3(-1, 0, 0);
+		    prime = true;
 		    return;
 		case 8:
 		    direction = new THREE.Vector3( 0,-1, 0);
 		    return;
 		case 9:
-		    prime = true;
 		    direction = new THREE.Vector3( 0,-1, 0);
+		    prime = true;
 		    return;
 		case 10:
 		    direction = new THREE.Vector3( 0, 0,-1);
 		    return;
 		case 11:
-		    prime = true;
 		    direction = new THREE.Vector3( 0, 0,-1);
+		    prime = true;
 	    }
 	}
 
@@ -458,8 +468,10 @@ $(document).ready(function() {
 	}
 
 	function changeSpeed() {
-	    if(rotation === 0)
-	    	MOVE_TIME = Number(32-$('#turnSpeed').val());
+	    if(rotation === 0) 
+			MOVE_TIME = Number(32-$('#turnSpeed').val());
+		else
+			speedChange = true;
 	}
 
 	function setMetric() {
@@ -488,7 +500,7 @@ $(document).ready(function() {
                     solved = true;
                 if(solved && !isSolved())
                     solved = false;
-				changeButtonClickability(true);
+				setButtonClickability(true);
             }
             else
                 keyDown(Q.dequeue());
