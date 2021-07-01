@@ -7,6 +7,12 @@ body {
 button {
     align: center;
     font-size: 28px;
+	background-color: white;
+	border-width: 3px 3px 3px 3px;
+	border-color: grey;
+	border-radius: 5px;
+	box-shadow: 0px;
+	color: black;
 }
 
 canvas{
@@ -42,4 +48,12 @@ p {
 
 #cube {
     width: 100%;
+}
+
+button[disabled=disabled], button:disabled {
+	background-color: white;
+	border-radius: 5px;
+	border-color: grey;
+	box-shadow: 0px;
+	color: black;
 }
