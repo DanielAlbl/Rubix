@@ -42,7 +42,7 @@ $(document).ready(function() {
 
 	// globals
 	var rotation    = 0;
-	var direction   = 0;
+	var direction   = null;
 	var orientation = new THREE.Quaternion(0,0,0,1);
 	var prime       = false;
 	var middle      = false;
@@ -50,10 +50,10 @@ $(document).ready(function() {
 	var cubeRot     = false;
 	var solved      = true;
 	var solving     = false;
-	var disabled 	= false;
 	var speedChange = false;
+	var moving      = false;
 	var move        = 0;
-	var MOVE_TIME   = 9;
+	var AN_STEPS   = 6;
     var Q           = new Queue; 
 
 	// Make Cube
@@ -136,13 +136,16 @@ $(document).ready(function() {
 		}
 	}
 
-	function keyDown(e) {
-	    if(direction !== 0) {
+	function keyDown(e, pop = false) {
+	    if(moving && !pop) {
 			Q.enqueue(e);  
 		    return;
         }
 		
-		setButtonClickability(false);
+		if(!moving) {
+			moving = true;
+			setButtonClickability(false);
+		}
 
 	    switch(e.key) {
 		case 'o':
@@ -257,15 +260,15 @@ $(document).ready(function() {
 	    direction.applyQuaternion(orientation);
 	    orientation.inverse();
 
-		side.rotateOnAxis(direction, (prime ? 1:-1)*Math.PI/MOVE_TIME/2);
+		side.rotateOnAxis(direction, (prime ? 1:-1)*Math.PI/AN_STEPS/2);
 
 	    while(side.children.length !== 0)
 		    cube.attach(side.children[side.children.length-1]);
 
 	    rotation++;
-	    if(rotation === MOVE_TIME) { 
+	    if(rotation === AN_STEPS) { 
             rotation = 0;
-            direction = 0;
+			direction = null;
             prime = false;
             middle = false;
             if(solving) {
@@ -273,7 +276,6 @@ $(document).ready(function() {
                 if(move === solver.max) {
                     solving = false;
 					setMetricClickability(true);
-                    direction = 0;
                     move = 0;
                     solver.reset();
                 }
@@ -284,16 +286,20 @@ $(document).ready(function() {
 				changeSpeed();
 				speedChange = false;
 			}
+			if(Q.empty() && !solving) {
+				setButtonClickability(true);
+				moving = false;
+			}
 	    }
 	}
 
 	function cubeRotation() {
 	    if(rotation === 0)
 		    direction.applyQuaternion(orientation);
-	    cube.rotateOnAxis(direction, Math.PI/MOVE_TIME/2);
+	    cube.rotateOnAxis(direction, Math.PI/AN_STEPS/2);
 	    
 	    rotation++;
-	    if(rotation === MOVE_TIME) {
+	    if(rotation === AN_STEPS) {
             let q = new THREE.Quaternion();
             q.setFromAxisAngle(direction, -Math.PI/2);
             orientation.multiplyQuaternions(q,orientation);
@@ -301,11 +307,15 @@ $(document).ready(function() {
 			roundOrientation();
              
             rotation = 0;
-            direction = 0;
+			direction = null;
             cubeRot = false;
 			if(speedChange) {
 				changeSpeed();
 				speedChange = false;
+			}
+			if(Q.empty()) {
+				setButtonClickability(true);
+				moving = false;
 			}
 	    }
 	}
@@ -409,11 +419,8 @@ $(document).ready(function() {
 	}
 
 	function setButtonClickability(b) {
-		if(disabled === b) {
-			$('#scramble').prop('disabled', !b);
-			$('#solve'   ).prop('disabled', !b);
-			disabled = !b;
-		}
+		$('#scramble').prop('disabled', !b);
+		$('#solve'   ).prop('disabled', !b);
 	}
 
 	function setDirection() {
@@ -469,7 +476,7 @@ $(document).ready(function() {
 
 	function changeSpeed() {
 	    if(rotation === 0) 
-			MOVE_TIME = Number(32-$('#turnSpeed').val());
+			AN_STEPS = Number(16-$('#turnSpeed').val());
 		else
 			speedChange = true;
 	}
@@ -488,22 +495,14 @@ $(document).ready(function() {
 	}
 
 	function update() {
-	    if(direction !== 0) {
+		if(direction === null && !Q.empty())
+			keyDown(Q.dequeue(), true);
+
+	    if(direction !== null) {
 		    if(cubeRot)
 		        cubeRotation();
 		    else
 		        moveSide();
-	    }
-	    else {
-            if(Q.empty()) {
-                if(!solved && isSolved())
-                    solved = true;
-                if(solved && !isSolved())
-                    solved = false;
-				setButtonClickability(true);
-            }
-            else
-                keyDown(Q.dequeue());
 	    }
 	}
 
