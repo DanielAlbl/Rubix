@@ -35,7 +35,7 @@ function Edges() {
         cycle4(d,c,b,a,this.edges);
     };
     
-	this.cycle4p  = function(a,b,c,d) {
+	this.cycle4p = function(a,b,c,d) {
         cycle4(d,c,b,a,this.edges);
     };
     
@@ -73,7 +73,7 @@ function Edges() {
     this.whiteCross = function() {
         for(let i = 8; i < 12; i++)
             if(this.edges[i] !== 2*i)
-            return false;
+				return false;
         return true;
     };
 }
@@ -84,8 +84,8 @@ function Centers() {
 	for (let i = 0; i < 6; i++)
         this.centers.push(i);
     
-    this.cycle4 = function(d,c,b,a) {
-        cycle4(d,c,b,a,this.centers);
+    this.cycle4 = function(a,b,c,d) {
+        cycle4(a,b,c,d,this.centers);
     };
 
     this.cycle4p = function(a,b,c,d) {
@@ -110,10 +110,10 @@ function Centers() {
 
         switch(bottom) {
             case 0: preMoves.push(4); break;
-            case 1: preMoves.push(0); preMoves.push(0); break;
-            case 2: preMoves.push(1); break;
-            case 3: preMoves.push(5); break;
+            case 1: preMoves.push(0);
             case 5: preMoves.push(0); break;
+            case 2: preMoves.push(1); break;
+            case 3: preMoves.push(5); 
         }
         for(let i = 0; i < preMoves.length; i++) {
             this.move(preMoves[i]);
@@ -125,9 +125,9 @@ function Centers() {
                 break;
             }
         switch(front) {
+            case 5: preMoves.push(2);
             case 0: preMoves.push(2); break; 
-            case 3: preMoves.push(3); break;
-            case 5: preMoves.push(2); preMoves.push(2); break;
+            case 3: preMoves.push(3); 
         }
         for(let i = moved-1; i >= 0; i--)
             this.move(inverse(preMoves[i]));
@@ -140,7 +140,7 @@ function Centers() {
                 if(this.edges[i] !== solved.edges[i])
                     return false;
             return true;
-        }
+        };
     };
 }
 
@@ -169,6 +169,10 @@ function rotateCube(m) {
 	this.centers.move(m);
 }
 
+function solved() {
+	this.edges.whiteCross = this.centers.getCrossFunction();
+	return this.edges.whiteCross();
+}
 
 // Solver objects
 function QTM_Solver() {
@@ -189,6 +193,8 @@ function QTM_Solver() {
 	this.rotateCube = rotateCube;
 
     this.heuristic = heuristic;
+
+	this.solved = solved;
 
 	this.move = function(m) {
         this.edges.move(m);
@@ -248,10 +254,11 @@ function QTM_Solver() {
         return false;
     };
  
-    this.solveCross = function() {
-        this.edges.whiteCross = this.centers.getCrossFunction();
-        this.solveCrossRecursive();
-    };
+    this.solveCross = function(setFunc = true) {
+		if(setFunc)
+			this.edges.whiteCross = this.centers.getCrossFunction();
+		this.solveCrossRecursive;
+	}
 
     this.reset = function() {
         this.max = 10;
@@ -279,6 +286,8 @@ function HTM_Solver() {
 
     this.heuristic = heuristic;
 	
+	this.solved = solved;
+
     this.move = function(m,quarter = true) {
         if(quarter) {
             this.edges.move(m);
@@ -346,8 +355,9 @@ function HTM_Solver() {
         return false;
     };
 
-    this.solveCross = function() {
-        this.edges.whiteCross = this.centers.getCrossFunction();
+    this.solveCross = function(setFunc = true) {
+		if(setFunc)
+			this.edges.whiteCross = this.centers.getCrossFunction();
         this.solveCrossRecursive();
         var side, type, j = 0;
         for(let i = 0; i < this.max; i++) {

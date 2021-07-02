@@ -403,13 +403,13 @@ $(document).ready(function() {
 	}
 
 	function solveCross() {
-	    if(solver.edges.whiteCross())
+	    if(solver.solved())
 		    return;
 
-	    solving = true;
+	    solving = moving = true;
 		setMetricClickability(false);
 		setButtonClickability(false);
-	    solver.solveCross();
+	    solver.solveCross(false);
 	    setDirection();
 	}
 
