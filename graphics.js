@@ -12,16 +12,23 @@ $(document).ready(function() {
 
     // Classes
     class Queue {
-        constructor() { this.data = [];               }
-        enqueue(item) { this.data.push(item);         }
-        dequeue()     { return this.data.shift();     }
-		size()        { return this.data.length;      }
-        empty()       { return this.data.length == 0; }
+        constructor() { this.data = [], this.start = 0; }
+        enqueue(item) { this.data.push(item);           }
+		size()        { return this.data.length;        }
+        empty()       { return this.data.length === 0;  }
+        dequeue() {
+			let c = this.data[this.start++];
+			if(2 * this.start >= this.data.length) {
+				this.data = this.data.slice(this.start);
+				this.start = 0;
+			}
+			return c;
+		}
     }
 
 	// Constants
 	const WIDTH = 1;
-	const MARGIN = 0.001
+	const MARGIN = 0.001;
 	const INNER_COLOR = 0x000000;
 	const COLORS = [
 		0xCC0000, //right
