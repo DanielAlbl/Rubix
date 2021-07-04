@@ -9,10 +9,10 @@
   </head>
   <body>
     <br>
-    <button id='scramble'>Scramble</button>
-    <button id='solve'>Solve Cross</button>
+    <button id="scramble">Scramble</button>
+    <button id="solve">Solve Cross</button>
     <br><br><br>
-    <button id='options'>Options</button><br>
+    <button id="options">Options</button><br>
     <div id='settings' style='display: none;'>
         <br>Double moves count as:<br>
         <input type="radio" id='htm' name="metric" value="htm" checked='checked'> 
@@ -20,7 +20,7 @@
         <input type="radio" id='qtm' name="metric" value="qtm">  
             <span style='font-size: 20px;'>2 Moves</span> 
         <br>Turn speed:<br>
-        <input type="range" min="0" max="31" value="23" class="slider" id="turnSpeed">
+        <input type="range" min="0" max="15" value="10" class="slider" id="turnSpeed">
     </div>
     <div id='cube'></div>
 	<div>
@@ -38,9 +38,8 @@
 	<br>
 	<p>(Cube rotations are done with the arrow keys)</p>
 	<br>
-    <button id='home' onclick="location.href='{{ url_for("home") }}'" type='button'>Home Page</button>
     <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r119/three.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.min.js"></script>
 	<!--,<script src="https://threejs.org/build/three.js"></script>-->  
 	<script src="solver.js"></script>
     <script src="graphics.js"></script>

@@ -82,12 +82,12 @@ $(document).ready(function() {
 
 	// Functions
 	function makeCubie(x,y,z) {
-	    var geometry = new THREE.BoxGeometry(WIDTH, WIDTH, WIDTH);
-	    var material = new THREE.MeshBasicMaterial( {side: THREE.DoubleSide, vertexColors: THREE.FaceColors} );
-	    var sides = new THREE.Mesh(geometry,material);
-	    var bordersGeo = new THREE.EdgesGeometry(geometry);
-	    var borders = new THREE.LineSegments(bordersGeo,new THREE.LineBasicMaterial({color: 0xE8E8E8, linewidth: 16}));
-	    var cubie = new THREE.Group();
+	    let geometry = new THREE.BoxGeometry(WIDTH, WIDTH, WIDTH);
+	    let material = new THREE.MeshBasicMaterial( {side: THREE.DoubleSide, vertexColors: THREE.FaceColors} );
+	    let sides = new THREE.Mesh(geometry,material);
+	    let bordersGeo = new THREE.EdgesGeometry(geometry);
+	    let borders = new THREE.LineSegments(bordersGeo,new THREE.LineBasicMaterial({color: 0xE8E8E8, linewidth: 16}));
+	    let cubie = new THREE.Group();
 	    cubie.add(sides);
 	    cubie.add(borders);
 	    cubie.translateX(x);
@@ -138,7 +138,7 @@ $(document).ready(function() {
 
 	function keyDown(e, pop = false) {
 	    if(moving && !pop) {
-			Q.enqueue(e);  
+			Q.enqueue({key: e.key, keyCode: e.keyCode});  
 		    return;
         }
 		
@@ -256,9 +256,9 @@ $(document).ready(function() {
 		        i--;
 		    }
 	   
-	    orientation.inverse();
+	    orientation.invert();
 	    direction.applyQuaternion(orientation);
-	    orientation.inverse();
+	    orientation.invert(); 
 
 		side.rotateOnAxis(direction, (prime ? 1:-1)*Math.PI/AN_STEPS/2);
 
@@ -359,9 +359,9 @@ $(document).ready(function() {
                 i--;
             }
 	   
-	    orientation.inverse();
+	    orientation.invert();
 	    axis.applyQuaternion(orientation);
-	    orientation.inverse();
+	    orientation.invert();
 
 		side.rotateOnAxis(axis, (neg ? 1:-1)*Math.PI/2);
 
