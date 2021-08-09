@@ -1,22 +1,28 @@
-const moves = [[  0,  5,  8,  4],
-               [  1,  0,  3,  2],
-               [  3,  4, 11,  7],
-               [  2,  7, 10,  6],
-               [ 11,  8,  9, 10],
-               [  1,  6,  9,  5]];
+// each row contains the edges that are moved
+// for each move of the cube
+const moves = [[  0,  5,  8,  4],   // R
+               [  1,  0,  3,  2],   // U 
+               [  3,  4, 11,  7],   // F
+               [  2,  7, 10,  6],   // L 
+               [ 11,  8,  9, 10],   // D
+               [  1,  6,  9,  5]];  // F
 
-const middles = [[ 3,  1,  9, 11],
-                 [ 5,  4,  7,  6],
-                 [ 0,  8, 10,  2]];
+// edges moved by middle moves
+const middles = [[ 3,  1,  9, 11],  // M
+                 [ 5,  4,  7,  6],  // E
+                 [ 0,  8, 10,  2]]; // S
     
-const centers = [[ 1,  5,  4,  2],
-                 [ 0,  2,  3,  5],
-                 [ 0,  4,  3,  1]];
+// centers moved by cube rotations
+const centers = [[ 1,  5,  4,  2],  // X
+                 [ 0,  2,  3,  5],  // Y
+                 [ 0,  4,  3,  1]]; // Z
 
+// map from edges to their 2 adjacent centers
 const edgesToCenters = [[0,1], [1,5], [1,3], [1,2], 
 	                    [0,2], [0,5], [3,5], [2,3], 
 	                    [0,4], [4,5], [3,4], [2,4]];
 
+// helper function that rotates 4 elements of an array
 var cycle4 = function(d,c,b,a,arr) {
     let temp = arr[a];
     arr[a] = arr[b];
@@ -25,10 +31,12 @@ var cycle4 = function(d,c,b,a,arr) {
     arr[d] = temp;
 };
 
+// helper that toggles between numbers 2*m and 2*m + 1
 var inverse = function(m) {
 	return m + (m % 2 ? -1 : 1);
 };
 
+// "Class" for just the edges of a rubik's cube
 function Edges() {
     this.edges = [];
 	this.solvedEdges = [16, 18, 20, 22];
@@ -51,6 +59,8 @@ function Edges() {
 		this.edges[d] = inverse(this.edges[d]);
     };
     
+	// move 1 side of the cube
+	// "flip" indicates whether to keep track of orientation of edges
 	this.move = function(m, flip = true) {
         let i = Math.floor(m/2);
 		if(flip) 
@@ -61,6 +71,8 @@ function Edges() {
             this.cycle4p(moves[i][0],moves[i][1],moves[i][2],moves[i][3]);
     };
 
+	// make middle move
+	// "flip" indicates whether to keep track of orientation of edges
     this.moveMiddle = function(m, flip = true) { 
         let i = Math.floor(m/2);
 		if(flip) {
@@ -74,12 +86,14 @@ function Edges() {
             this.cycle4p(middles[i][0],middles[i][1],middles[i][2],middles[i][3]);
     };
 
+	// make cube rotation
     this.rotateCube = function(m) {
         this.move(m, false);
         this.moveMiddle(m, false);
         this.move(inverse(m+6), false);
     };
 
+	// returns whether bottom cross is solved
     this.bottomCross = function() {
         for(let i = 8; i < 12; i++)
             if(this.edges[i] !== this.solvedEdges[i-8])
@@ -88,6 +102,7 @@ function Edges() {
     };
 }
 
+// "Class" for just the center of a rubik's cube
 function Centers() {
     this.centers = [];
     
@@ -102,6 +117,8 @@ function Centers() {
         cycle4(d,c,b,a,this.centers);
     };
 
+	// rotate centers along a given axis
+	// this could be due to a middle move or cube rotation
     this.move = function(m) {
         let i = Math.floor(m/2);
         if(m % 2 === 0)
@@ -110,6 +127,7 @@ function Centers() {
             this.cycle4p(centers[i][0],centers[i][1],centers[i][2],centers[i][3]);
     };
 
+	// get the 4 edges which must be in the 4 positions of the bottom cross
 	this.getSolvedEdges = function() {
 		let solvedEdges = [0, 0, 0, 0];
 		for(let i = 0; i < 12; i++) {
@@ -129,14 +147,19 @@ function Centers() {
 }
 
 
-// Solver Functions
+///////////// Solver Functions /////////////////
+
+// returns whether a given edge on the bottom layer
+// has the correct bottom color (other color may not be aligned)
 function correctBottomColor(i) {
 	let e = this.edges.edges[i];
 	let j = Math.floor(e/2);
 	let centers = this.centers.centers;
 
+	// if edge does not contain bottom color
 	if(!this.edges.solvedEdges.includes(e)) return false;
 	
+	// determines whether edge is oriented such that bottom color is facing down
 	let tmp = true;
 	if(i % 2)
 		tmp = edgesToCenters[j].includes(centers[2]) || edgesToCenters[j].includes(centers[5]);
@@ -146,16 +169,22 @@ function correctBottomColor(i) {
 	return tmp === (e % 2 === 0);
 }
 
+// calculates a minimum (but not exact)
+// number of moves before cross is solved
 function heuristic() {
 	let m = 0, aligned = true;
 
 	for(let i = 8; i < 12; i++) {
+		// count edge that don't have correct bottom color
 		if(!this.correctBottomColor(i))
 			m++;
+		// keep track of alignment of other color of the edge
 		else if(this.edges.edges[i] !== this.edges.solvedEdges[i-8])
 			aligned = false;
 	}
 
+	// if at least 1 edge was not aligned
+	// it must take at leat another move to solve cross
 	return aligned ? m : m+1;
 }
 
@@ -169,12 +198,15 @@ function rotateCube(m) {
 	this.centers.move(m);
 }
 
+// returns if bottom cross is solved
 function solved() {
 	this.edges.solvedEdges = this.centers.getSolvedEdges();
 	return this.edges.bottomCross();
 }
 
-// Solver objects
+////////////// Solver objects ////////////
+
+// Quarter turn metric solver
 function QTM_Solver() {
     this.edges = new Edges();
     this.centers = new Centers();
@@ -202,32 +234,38 @@ function QTM_Solver() {
         this.edges.move(m);
     };
 
+	// returns whether move "ran" can be added to moves in solution
+	// as the ith move without causing redunancy
 	this.kosher = function(ran,i) {
-        if(i === 0)
-            return true;
-        let odd, moveType, repeatCount = 0, j = i-1;
+		// first move is always fine
+        if(i === 0) return true;
+
+        let odd, moveType, repeatCount = 1, j = i-1;
         
 		odd = ran % 2 !== 0;
 
+		// get axis of rotation of ran
         moveType = Math.floor((ran % 6) / 2);
 
-        if(!odd && this.mvs[i-1] === ran+1)
-            return false;
-        if(odd && this.mvs[i-1] === ran-1)
-            return false;
+		// making a move and it's inverse is a waste
+		if(this.mvs[i-1] === inverse(ran)) return false;
 
-        while(Math.floor((this.mvs[j]%6)/2) === moveType && j != -1) {
-            if(this.mvs[j] === ran)
-                repeatCount++;
-            if(repeatCount === 2)
-                return false;
-            if(odd && repeatCount === 1)
-                return false;
+		// loop through contiguous moves in ran's axis of rotation
+		// since these are all commutative, we are eliminating redundancy
+        while(j > -1 && Math.floor((this.mvs[j]%6)/2) === moveType) {
+			// count moves equal to ran
+            if(this.mvs[j] === ran) repeatCount++;
+			// 3 x ran = rand inverse redundancy
+            if(repeatCount === 3) return false;
+			// 2 x ran inverse = 2 x ran redundancy
+            if(odd && repeatCount === 2) return false;
             j--;
         }
-        
+
+		// for 2 moves on opposite sides of the cube, order doesn't matter
         if(Math.floor((this.mvs[i-1]%6)/2) === moveType && this.mvs[i-1] > ran)
             return false;
+
         return true;
     };
 
