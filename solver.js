@@ -213,7 +213,7 @@ function QTM_Solver() {
 
     this.mvs = [];
     this.sol = [];
-    this.max = 10;
+    this.min = 10;
 
     for(let i = 0; i < 20; i++) {
         this.mvs.push(0);
@@ -235,7 +235,7 @@ function QTM_Solver() {
     };
 
 	// returns whether move "ran" can be added to moves in solution
-	// as the ith move without causing redunancy
+	// as the ith move without causing redundancy
 	this.kosher = function(ran,i) {
 		// first move is always fine
         if(i === 0) return true;
@@ -270,28 +270,28 @@ function QTM_Solver() {
     };
 
 	this.solveCrossRecursive = function(count = 0) {
-        if(count < this.max && this.edges.bottomCross()) {
-            this.max = count;
-            for(let i = 0; i < this.max; i++)
+		// if bottom cross is solved in fewer moves than current min
+        if(count < this.min && this.edges.bottomCross()) {
+			// set new min
+            this.min = count;
+			// set solution to current moves
+            for(let i = 0; i < this.min; i++)
                 this.sol[i] = this.mvs[i];
-            return true;
+            return;
         }
-        if(count+this.heuristic() >= this.max)
-            return false;
+		// return if heuristic says it's impossible to beat min moves from this position
+        if(count+this.heuristic() >= this.min) return;
 
+		// try all moves
         for(let i = 0; i < 12; i++) {
             if(this.kosher(i,count)) {
                 this.mvs[count] = i;
                 this.move(i);
-                if(this.solveCrossRecursive(count+1)) {
-                    this.move(inverse(i));
-                    break;
-                }
+				this.solveCrossRecursive(count+1);
                 this.move(inverse(i));
             }
         }
         this.mvs[count] = 0;
-        return false;
     };
  
     this.solveCross = function(getEdges = true) {
@@ -301,10 +301,11 @@ function QTM_Solver() {
 	}
 
     this.reset = function() {
-        this.max = 10;
+        this.min = 10;
     };
 }
 
+// half turn metric solver
 function HTM_Solver() {
     this.edges = new Edges();
     this.centers = new Centers();
@@ -312,7 +313,7 @@ function HTM_Solver() {
     this.mvs    = [];
     this.sol    = [];
     this.solHTM = [];
-    this.max    = 8;
+    this.min    = 8;
     
     for(let i = 0; i < 20; i++) {
         this.mvs.push(0);
@@ -347,9 +348,10 @@ function HTM_Solver() {
             this.edges.move(side+1);
     };
 
+	// returns wether move "ran" can be added to moves in solution
+	// as the ith move without causing redundancy
 	this.kosher = function(ran,i) {
-        if(i === 0)
-            return true;
+        if(i === 0) return true;
         // same side as last move
         if(Math.floor(ran/3) === Math.floor(this.mvs[i-1]/3))
             return false;
@@ -361,65 +363,63 @@ function HTM_Solver() {
     };
     
     this.solveCrossRecursive = function(count = 0) {
-        if(count < this.max && this.edges.bottomCross()) {
-            this.max = count;
-            for(var i = 0; i < this.max; i++)
+		// if bottom cross is solved in fewer moves than current min
+        if(count < this.min && this.edges.bottomCross()) {
+			// set new min
+            this.min = count;
+			// set solution to current moves
+            for(var i = 0; i < this.min; i++)
 				this.solHTM[i] = this.mvs[i];
-            return true;
+            return;
         }
-        if(count+this.heuristic() >= this.max)
-            return false;
+		// return if heuristic says it's impossible to beat min moves from this position
+        if(count+this.heuristic() >= this.min) return;
 
+		// try all moves
         for(let i = 0; i < 18; i++) {
             if(this.kosher(i,count)) {
                 this.mvs[count] = i;
-            this.move(i,false);
-            if(this.solveCrossRecursive(count+1)) {
-                let mod = i % 3;
-                if(mod === 0)
-                    this.move(i+2,false);
-                else if(mod === 1)
-                    this.move(i,false);
-                else
-                    this.move(i-2,false);
-                break;
-            }
-            let mod = i % 3;
-            if(mod === 0)
-                this.move(i+2,false);
-            else if(mod === 1)
-                this.move(i,false);
-            else
-                this.move(i-2,false);
+				this.move(i,false);
+				this.solveCrossRecursive(count+1);
+				let mod = i % 3;
+				if(mod === 0)
+					this.move(i+2,false);
+				else if(mod === 1)
+					this.move(i,false);
+				else
+					this.move(i-2,false);
             }
         }
         this.mvs[count] = 0;
-        return false;
     };
 
     this.solveCross = function(getEdges = true) {
 		if(getEdges)
 			this.edges.solvedEdges = this.centers.getSolvedEdges();
         this.solveCrossRecursive();
+		// convert htm moves to qtm 
         var side, type, j = 0;
-        for(let i = 0; i < this.max; i++) {
+        for(let i = 0; i < this.min; i++) {
             side = 2*Math.floor(this.solHTM[i]/3);
             type = this.solHTM[i] % 3;
+			// single move
             if(type === 0)
                 this.sol[j] = side;
+			// double move
             else if(type === 1) {
                 this.sol[j] = side;
                 j++;
                 this.sol[j] = side;
             }
+			// inverse move
             else
                 this.sol[j] = side+1;
 			j++;
         }
-        this.max = j;
+        this.min = j;
     };
 
     this.reset = function() {
-        this.max = 8;
+        this.min = 8;
     };
 }

@@ -294,7 +294,7 @@ $(document).ready(function() {
             if(solving) {
                 move++;
 				// handle completed cross solve
-                if(move === solver.max) {
+                if(move === solver.min) {
                     solving = false;
 					setMetricClickability(true);
                     move = 0;
