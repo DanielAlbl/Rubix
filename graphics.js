@@ -1,3 +1,5 @@
+"use strict";
+
 $(document).ready(function() {
 	// Initialize
 	var scene = new THREE.Scene();

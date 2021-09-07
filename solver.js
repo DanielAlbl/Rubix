@@ -1,3 +1,5 @@
+"use strict";
+
 // each row contains the edges that are moved
 // for each move of the cube
 const moves = [[  0,  5,  8,  4],   // R
