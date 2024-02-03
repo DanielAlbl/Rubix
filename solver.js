@@ -162,7 +162,7 @@ function correctBottomColor(i) {
 	if(!this.edges.solvedEdges.includes(e)) return false;
 	
 	// determines whether edge is oriented such that bottom color is facing down
-	let tmp = true;
+	let tmp;
 	if(i % 2)
 		tmp = edgesToCenters[j].includes(centers[2]) || edgesToCenters[j].includes(centers[5]);
 	else
@@ -186,7 +186,7 @@ function heuristic() {
 	}
 
 	// if at least 1 edge was not aligned
-	// it must take at leat another move to solve cross
+	// it must take at least another move to solve cross
 	return aligned ? m : m+1;
 }
 
@@ -265,10 +265,7 @@ function QTM_Solver() {
         }
 
 		// for 2 moves on opposite sides of the cube, order doesn't matter
-        if(Math.floor((this.mvs[i-1]%6)/2) === moveType && this.mvs[i-1] > ran)
-            return false;
-
-        return true;
+        return !(Math.floor((this.mvs[i - 1] % 6) / 2) === moveType && this.mvs[i - 1] > ran);
     };
 
 	this.solveCrossRecursive = function(count = 0) {
@@ -350,18 +347,15 @@ function HTM_Solver() {
             this.edges.move(side+1);
     };
 
-	// returns wether move "ran" can be added to moves in solution
+	// returns whether move "ran" can be added to moves in solution
 	// as the ith move without causing redundancy
 	this.kosher = function(ran,i) {
         if(i === 0) return true;
         // same side as last move
         if(Math.floor(ran/3) === Math.floor(this.mvs[i-1]/3))
             return false;
-        // eliminate ambiguity for commutitive moves
-        if(Math.floor((ran%9)/3) === Math.floor((this.mvs[i-1]%9)/3) && this.mvs[i-1] > ran)
-            return false;
-        
-        return true;
+        // eliminate ambiguity for commutative moves
+        return !(Math.floor((ran % 9) / 3) === Math.floor((this.mvs[i - 1] % 9) / 3) && this.mvs[i - 1] > ran);
     };
     
     this.solveCrossRecursive = function(count = 0) {
@@ -370,7 +364,7 @@ function HTM_Solver() {
 			// set new min
             this.min = count;
 			// set solution to current moves
-            for(var i = 0; i < this.min; i++)
+            for(let i = 0; i < this.min; i++)
 				this.solHTM[i] = this.mvs[i];
             return;
         }
@@ -400,7 +394,7 @@ function HTM_Solver() {
 			this.edges.solvedEdges = this.centers.getSolvedEdges();
         this.solveCrossRecursive();
 		// convert htm moves to qtm 
-        var side, type, j = 0;
+        let side, type, j = 0;
         for(let i = 0; i < this.min; i++) {
             side = 2*Math.floor(this.solHTM[i]/3);
             type = this.solHTM[i] % 3;

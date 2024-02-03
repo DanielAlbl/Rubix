@@ -318,7 +318,7 @@ $(document).ready(function() {
 	    }
 	}
 
-	// single animation frame of frame of entire cube
+	// single animation frame of entire cube
 	function cubeRotation() {
 		// rotate direction of move based on orientation of cube 
 		// on first animation frame
@@ -330,7 +330,7 @@ $(document).ready(function() {
 	    frame++;
 		// handle completed frame
 	    if(frame === AN_STEPS) {
-			// caclulate new orientation quaternion of cube
+			// calculate new orientation quaternion of cube
             let q = new THREE.Quaternion();
             q.setFromAxisAngle(direction, -Math.PI/2);
             orientation.multiplyQuaternions(q,orientation);
@@ -512,12 +512,8 @@ $(document).ready(function() {
 			keyDown(Q.dequeue(), true);
 
 		// continue ongoing animations of moves or frames
-	    if(direction !== null) {
-		    if(cubeRot)
-		        cubeRotation();
-		    else
-		        moveSide();
-	    }
+	    if(direction !== null)
+			cubeRot ? cubeRotation() : moveSide();
 	}
 
 	function render() {
